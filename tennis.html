@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تنس - WagerWise</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>القائمة</h2>
+            <nav>
+                <ul>
+                    <li><a href="/">Top Picks</a></li>
+                    <li><a href="/football">كرة القدم</a></li>
+                    <li class="active"><a href="/tennis">تنس</a></li>
+                    <li><a href="/chess">شطرنج</a></li>
+                    <li><a href="/chat">AI Chat</a></li>
+                    <li><a href="/settings">الإعدادات</a></li>
+                </ul>
+            </nav>
+            <button class="refresh-button">تحديث البيانات</button>
+        </aside>
+
+        <main class="content">
+            <h1>مباريات التنس - WagerWise</h1>
+            
+            <div class="matches-container">
+                <h2>جدول المباريات</h2>
+                <table class="matches-table">
+                    <thead>
+                        <tr>
+                            <th>المباراة</th>
+                            <th>البطولة</th>
+                            <th>التاريخ</th>
+                            <th>الحالة</th>
+                            <th>التفاصيل</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if tennis_matches %}
+                            {% for match in tennis_matches %}
+                            <tr class="match-row" data-match-id="{{ loop.index }}">
+                                <td>{{ match.team_a }} vs {{ match.team_b }}</td>
+                                <td>{{ match.tournament }}</td>
+                                <td>{{ match.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>{{ match.status if match.status else "قادمة" }}</td>
+                                <td><button class="details-button">عرض التحليل</button></td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5">لا توجد مباريات متاحة حاليًا.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="bets-container">
+                <h2>الرهانات المقترحة</h2>
+                <table class="bets-table">
+                    <thead>
+                        <tr>
+                            <th>المباراة</th>
+                            <th>الرهان</th>
+                            <th>نسبة النجاح المتوقعة</th>
+                            <th>طريقة الدخول</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if tennis_bets %}
+                            {% for bet in tennis_bets %}
+                            <tr>
+                                <td>{{ bet.match }}</td>
+                                <td>{{ bet.bet_type }}</td>
+                                <td>{{ bet.confidence_pct }}%</td>
+                                <td>{{ bet.entry_type }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4">لا توجد رهانات متاحة حاليًا.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="analysis-container" id="match-analysis" style="display: none;">
+                <h2>تحليل المباراة</h2>
+                <div class="analysis-content">
+                    <h3 id="analysis-title">تحليل المباراة</h3>
+                    <div class="analysis-stats">
+                        <div class="stats-row">
+                            <div class="stats-item">
+                                <h4>آخر 5 مباريات</h4>
+                                <div class="team-stats">
+                                    <div class="team-a">
+                                        <span class="team-name" id="player-a-name">اللاعب الأول</span>
+                                        <div class="form-indicators">
+                                            <span class="form-win">W</span>
+                                            <span class="form-win">W</span>
+                                            <span class="form-loss">L</span>
+                                            <span class="form-win">W</span>
+                                            <span class="form-win">W</span>
+                                        </div>
+                                    </div>
+                                    <div class="team-b">
+                                        <span class="team-name" id="player-b-name">اللاعب الثاني</span>
+                                        <div class="form-indicators">
+                                            <span class="form-win">W</span>
+                                            <span class="form-loss">L</span>
+                                            <span class="form-win">W</span>
+                                            <span class="form-win">W</span>
+                                            <span class="form-loss">L</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="stats-item">
+                                <h4>المواجهات المباشرة</h4>
+                                <div class="h2h-stats">
+                                    <div class="h2h-result">
+                                        <span class="team-a-result">2</span>
+                                        <span class="h2h-separator">:</span>
+                                        <span class="team-b-result">0</span>
+                                        <span class="h2h-date">2023-06-10</span>
+                                    </div>
+                                    <div class="h2h-result">
+                                        <span class="team-a-result">2</span>
+                                        <span class="h2h-separator">:</span>
+                                        <span class="team-b-result">1</span>
+                                        <span class="h2h-date">2022-08-15</span>
+                                    </div>
+                                    <div class="h2h-result">
+                                        <span class="team-a-result">0</span>
+                                        <span class="h2h-separator">:</span>
+                                        <span class="team-b-result">2</span>
+                                        <span class="h2h-date">2022-01-20</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-row">
+                            <div class="stats-item">
+                                <h4>الإحصائيات</h4>
+                                <div class="detailed-stats">
+                                    <div class="stat-line">
+                                        <span class="stat-name">الإرسال الأول %</span>
+                                        <div class="stat-bar">
+                                            <div class="stat-value team-a-stat" style="width: 65%;">65%</div>
+                                            <div class="stat-value team-b-stat" style="width: 35%;">58%</div>
+                                        </div>
+                                    </div>
+                                    <div class="stat-line">
+                                        <span class="stat-name">نقاط الإرسال الأول %</span>
+                                        <div class="stat-bar">
+                                            <div class="stat-value team-a-stat" style="width: 70%;">78%</div>
+                                            <div class="stat-value team-b-stat" style="width: 30%;">70%</div>
+                                        </div>
+                                    </div>
+                                    <div class="stat-line">
+                                        <span class="stat-name">الضربات الرابحة</span>
+                                        <div class="stat-bar">
+                                            <div class="stat-value team-a-stat" style="width: 60%;">24</div>
+                                            <div class="stat-value team-b-stat" style="width: 40%;">18</div>
+                                        </div>
+                                    </div>
+                                    <div class="stat-line">
+                                        <span class="stat-name">الأخطاء غير المجبرة</span>
+                                        <div class="stat-bar">
+                                            <div class="stat-value team-a-stat" style="width: 45%;">15</div>
+                                            <div class="stat-value team-b-stat" style="width: 55%;">20</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="stats-item">
+                                <h4>تحليل "vibes" المباراة</h4>
+                                <div class="vibes-analysis">
+                                    <p><strong>الملعب:</strong> <span id="court-type">ملعب صلب</span></p>
+                                    <p><strong>الجمهور:</strong> <span id="crowd-factor">حضور جماهيري متوسط (60%)</span></p>
+                                    <p><strong>الضغوطات:</strong> <span id="pressure-factor">اللاعب الأول مرشح للفوز بالبطولة</span></p>
+                                    <p><strong>الإصابات:</strong> <span id="injury-factor">اللاعب الثاني يعاني من إصابة طفيفة في الكاحل</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recommended-bets">
+                        <h4>الرهانات الموصى بها</h4>
+                        <div class="bet-recommendations">
+                            <div class="bet-recommendation">
+                                <span class="bet-type">فوز اللاعب الأول</span>
+                                <span class="bet-confidence">82%</span>
+                            </div>
+                            <div class="bet-recommendation">
+                                <span class="bet-type">أكثر من 22.5 شوط</span>
+                                <span class="bet-confidence">75%</span>
+                            </div>
+                            <div class="bet-recommendation">
+                                <span class="bet-type">اللاعب الأول يفوز بالمجموعة الأولى</span>
+                                <span class="bet-confidence">88%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='refresh.js') }}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Handle details button clicks
+            const detailsButtons = document.querySelectorAll(".details-button");
+            detailsButtons.forEach(button => {
+                button.addEventListener("click", () => {
+                    const row = button.closest(".match-row");
+                    const matchId = row.dataset.matchId;
+                    const matchText = row.cells[0].textContent;
+                    
+                    // Show analysis container
+                    document.getElementById("match-analysis").style.display = "block";
+                    
+                    // Update analysis title
+                    document.getElementById("analysis-title").textContent = `تحليل مباراة: ${matchText}`;
+                    
+                    // Extract player names
+                    const players = matchText.split(" vs ");
+                    document.getElementById("player-a-name").textContent = players[0];
+                    document.getElementById("player-b-name").textContent = players[1];
+                    
+                    // Scroll to analysis section
+                    document.getElementById("match-analysis").scrollIntoView({ behavior: "smooth" });
+                    
+                    // In a real app, this would fetch detailed analysis data for the specific match
+                });
+            });
+        });
+    </script>
+</body>
+</html>

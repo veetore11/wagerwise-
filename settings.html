@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الإعدادات - WagerWise</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>القائمة</h2>
+            <nav>
+                <ul>
+                    <li><a href="/">Top Picks</a></li>
+                    <li><a href="/football">كرة القدم</a></li>
+                    <li><a href="/tennis">تنس</a></li>
+                    <li><a href="/chess">شطرنج</a></li>
+                    <li><a href="/chat">AI Chat</a></li>
+                    <li class="active"><a href="/settings">الإعدادات</a></li>
+                </ul>
+            </nav>
+            <button class="refresh-button">تحديث البيانات</button>
+        </aside>
+
+        <main class="content">
+            <h1>إعدادات WagerWise</h1>
+            
+            <div class="settings-container">
+                <div class="settings-section">
+                    <h2>إعدادات التحديث</h2>
+                    <div class="setting-item">
+                        <label for="refresh-interval">فترة التحديث التلقائي:</label>
+                        <select id="refresh-interval" class="setting-control">
+                            <option value="manual">يدوي فقط</option>
+                            <option value="page-load">عند فتح الصفحة</option>
+                            <option value="interaction">عند التفاعل مع الواجهة</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="daily-refresh-time">وقت التحديث اليومي:</label>
+                        <input type="time" id="daily-refresh-time" class="setting-control" value="00:00">
+                        <p class="setting-description">يتم تحديث الرهانات المقترحة يوميًا في هذا الوقت</p>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <button class="primary-button" id="refresh-now-button">تحديث البيانات الآن</button>
+                    </div>
+                    
+                    <div class="last-refresh-info">
+                        <p>آخر تحديث: <span id="last-refresh-time">2023-08-15 14:30</span></p>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h2>إعدادات العرض</h2>
+                    <div class="setting-item">
+                        <label for="top-picks-count">عدد أفضل الرهانات المعروضة:</label>
+                        <select id="top-picks-count" class="setting-control">
+                            <option value="3">3</option>
+                            <option value="5" selected>5</option>
+                            <option value="10">10</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="default-sport">الرياضة الافتراضية:</label>
+                        <select id="default-sport" class="setting-control">
+                            <option value="all">جميع الرياضات</option>
+                            <option value="football">كرة القدم</option>
+                            <option value="tennis">تنس</option>
+                            <option value="chess">شطرنج</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h2>إعدادات الرهانات</h2>
+                    <div class="setting-item">
+                        <label for="min-confidence">الحد الأدنى لنسبة النجاح المتوقعة:</label>
+                        <input type="range" id="min-confidence" class="setting-control" min="50" max="90" value="65" step="5">
+                        <p class="setting-value"><span id="min-confidence-value">65</span>%</p>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="bet-types">أنواع الرهانات المفضلة:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="bet-type-1" checked>
+                                <label for="bet-type-1">فوز/تعادل/خسارة</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="bet-type-2" checked>
+                                <label for="bet-type-2">فرصة مزدوجة</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="bet-type-3" checked>
+                                <label for="bet-type-3">Asian Handicap</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="bet-type-4" checked>
+                                <label for="bet-type-4">مجموع أهداف</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="bet-type-5" checked>
+                                <label for="bet-type-5">ركنيات</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="bet-type-6" checked>
+                                <label for="bet-type-6">بطاقات</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h2>حفظ الإعدادات</h2>
+                    <div class="setting-item">
+                        <button class="primary-button" id="save-settings-button">حفظ الإعدادات</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='refresh.js') }}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Handle range input display
+            const minConfidence = document.getElementById("min-confidence");
+            const minConfidenceValue = document.getElementById("min-confidence-value");
+            
+            minConfidence.addEventListener("input", () => {
+                minConfidenceValue.textContent = minConfidence.value;
+            });
+            
+            // Handle refresh now button
+            const refreshNowButton = document.getElementById("refresh-now-button");
+            refreshNowButton.addEventListener("click", () => {
+                // Show loading indicator
+                const loadingIndicator = document.createElement("div");
+                loadingIndicator.className = "loading-indicator";
+                loadingIndicator.textContent = "جاري تحديث البيانات...";
+                document.body.appendChild(loadingIndicator);
+                
+                // Simulate refresh
+                setTimeout(() => {
+                    // Remove loading indicator
+                    document.body.removeChild(loadingIndicator);
+                    
+                    // Update last refresh time
+                    const now = new Date();
+                    const formattedDate = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                    document.getElementById("last-refresh-time").textContent = formattedDate;
+                    
+                    // Show notification
+                    const notification = document.createElement("div");
+                    notification.className = "notification";
+                    notification.textContent = "تم تحديث البيانات بنجاح";
+                    document.body.appendChild(notification);
+                    
+                    // Remove notification after 3 seconds
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 3000);
+                }, 1500);
+            });
+            
+            // Handle save settings button
+            const saveSettingsButton = document.getElementById("save-settings-button");
+            saveSettingsButton.addEventListener("click", () => {
+                // Show notification
+                const notification = document.createElement("div");
+                notification.className = "notification";
+                notification.textContent = "تم حفظ الإعدادات بنجاح";
+                document.body.appendChild(notification);
+                
+                // Remove notification after 3 seconds
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 3000);
+                
+                // In a real app, this would save settings to a backend or localStorage
+            });
+        });
+    </script>
+</body>
+</html>

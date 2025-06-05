@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WagerWise - مستشار الرهانات الذكي</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>القائمة</h2>
+            <nav>
+                <ul>
+                    <li class="active"><a href="/">Top Picks</a></li>
+                    <li><a href="/football">كرة القدم</a></li>
+                    <li><a href="/tennis">تنس</a></li>
+                    <li><a href="/chess">شطرنج</a></li>
+                    <li><a href="/chat">AI Chat</a></li>
+                    <li><a href="/settings">الإعدادات</a></li>
+                </ul>
+            </nav>
+            <button class="refresh-button">تحديث البيانات</button>
+        </aside>
+
+        <main class="content">
+            <h1>WagerWise - أفضل الاختيارات اليومية</h1>
+            
+            <div class="top-picks-container">
+                <h2>أفضل الرهانات المقترحة</h2>
+                <table class="top-picks-table">
+                    <thead>
+                        <tr>
+                            <th>المباراة</th>
+                            <th>الرهان</th>
+                            <th>نسبة النجاح المتوقعة</th>
+                            <th>طريقة الدخول</th>
+                            <th>التفاصيل</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if top_picks %}
+                            {% for pick in top_picks %}
+                            <tr class="pick-row" data-pick-id="{{ loop.index }}">
+                                <td>{{ pick.match }}</td>
+                                <td>{{ pick.bet_type }}</td>
+                                <td>{{ pick.confidence_pct }}%</td>
+                                <td>{{ pick.entry_type }}</td>
+                                <td><button class="details-button">عرض التحليل</button></td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5">لا توجد رهانات متاحة حاليًا.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="analytical-container">
+                <h2>التحليل التفصيلي</h2>
+                <div class="analytical-content">
+                    <div class="analytical-header">
+                        <h3>تحليل الرهان المختار</h3>
+                        <p>اختر رهانًا من الجدول أعلاه لعرض التحليل التفصيلي</p>
+                    </div>
+                    
+                    {% if analytical_data %}
+                        <div class="analytical-table-container">
+                            <table class="analytical-table">
+                                <thead>
+                                    <tr>
+                                        <th>الرهان</th>
+                                        <th>السبب</th>
+                                        <th>البيانات المعتمدة</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in analytical_data %}
+                                    <tr>
+                                        <td>{{ item.bet }}</td>
+                                        <td>{{ item.reason }}</td>
+                                        <td>{{ item.data_source }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='refresh.js') }}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Handle details button clicks
+            const detailsButtons = document.querySelectorAll(".details-button");
+            detailsButtons.forEach(button => {
+                button.addEventListener("click", () => {
+                    const row = button.closest(".pick-row");
+                    const pickId = row.dataset.pickId;
+                    
+                    // In a real app, this would fetch detailed analysis for the specific pick
+                    // For now, we'll just scroll to the analytical section
+                    document.querySelector(".analytical-container").scrollIntoView({ behavior: "smooth" });
+                    
+                    // Update the header to show which pick is being analyzed
+                    const match = row.cells[0].textContent;
+                    const bet = row.cells[1].textContent;
+                    document.querySelector(".analytical-header h3").textContent = `تحليل: ${bet} في مباراة ${match}`;
+                    document.querySelector(".analytical-header p").textContent = `نسبة النجاح المتوقعة: ${row.cells[2].textContent}`;
+                });
+            });
+        });
+    </script>
+</body>
+</html>

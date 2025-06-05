@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat - WagerWise</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='chat.css') }}">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>القائمة</h2>
+            <nav>
+                <ul>
+                    <li><a href="/">Top Picks</a></li>
+                    <li><a href="/football">كرة القدم</a></li>
+                    <li><a href="/tennis">تنس</a></li>
+                    <li><a href="/chess">شطرنج</a></li>
+                    <li class="active"><a href="/chat">AI Chat</a></li>
+                    <li><a href="/settings">الإعدادات</a></li>
+                </ul>
+            </nav>
+            <button class="refresh-button">تحديث البيانات</button>
+        </aside>
+
+        <main class="content">
+            <h1>WagerWise AI Chat</h1>
+            
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2>تحدث مع مستشار الرهانات الذكي</h2>
+                    <p>اسأل عن أي رهان، تحليل، أو استراتيجية</p>
+                </div>
+                
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message bot-message">
+                        <div class="message-content">
+                            <p>مرحبًا بك في WagerWise! أنا مستشار الرهانات الذكي. كيف يمكنني مساعدتك اليوم؟</p>
+                            <p>يمكنك أن تسألني عن:</p>
+                            <ul>
+                                <li>لماذا تم اختيار رهان معين؟</li>
+                                <li>هل يمكن إضافة رهان إلى قسيمة؟</li>
+                                <li>ما هي البدائل لرهان معين؟</li>
+                                <li>تحليل مباراة محددة</li>
+                            </ul>
+                        </div>
+                        <div class="message-time">12:00</div>
+                    </div>
+                    
+                    <!-- Example conversation -->
+                    <div class="message user-message">
+                        <div class="message-content">
+                            <p>لماذا اخترت رهان فوز تشيلسي على آرسنال؟</p>
+                        </div>
+                        <div class="message-time">12:01</div>
+                    </div>
+                    
+                    <div class="message bot-message">
+                        <div class="message-content">
+                            <p>اخترت رهان فوز تشيلسي على آرسنال بناءً على عدة عوامل:</p>
+                            <ol>
+                                <li>تشيلسي فاز في 4 من آخر 5 مباريات مباشرة ضد آرسنال</li>
+                                <li>تشيلسي يلعب على أرضه مع حضور جماهيري كبير (85%)</li>
+                                <li>آرسنال يعاني من غيابات مؤثرة في خط الدفاع</li>
+                                <li>تشيلسي سجل في كل مبارياته الـ 10 الأخيرة على أرضه</li>
+                                <li>تحليل "vibes" المباراة يشير إلى أن تشيلسي تحت ضغط أقل للفوز</li>
+                            </ol>
+                            <p>نسبة النجاح المتوقعة لهذا الرهان هي 75%.</p>
+                        </div>
+                        <div class="message-time">12:01</div>
+                    </div>
+                </div>
+                
+                <div class="chat-input">
+                    <input type="text" id="user-message" placeholder="اكتب سؤالك هنا...">
+                    <button id="send-button">إرسال</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='refresh.js') }}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const chatMessages = document.getElementById("chat-messages");
+            const userMessageInput = document.getElementById("user-message");
+            const sendButton = document.getElementById("send-button");
+            
+            // Function to add a new message to the chat
+            function addMessage(content, isUser = false) {
+                const messageDiv = document.createElement("div");
+                messageDiv.className = isUser ? "message user-message" : "message bot-message";
+                
+                const contentDiv = document.createElement("div");
+                contentDiv.className = "message-content";
+                contentDiv.innerHTML = `<p>${content}</p>`;
+                
+                const timeDiv = document.createElement("div");
+                timeDiv.className = "message-time";
+                const now = new Date();
+                timeDiv.textContent = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+                
+                messageDiv.appendChild(contentDiv);
+                messageDiv.appendChild(timeDiv);
+                
+                chatMessages.appendChild(messageDiv);
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // Handle send button click
+            sendButton.addEventListener("click", () => {
+                const message = userMessageInput.value.trim();
+                if (message) {
+                    // Add user message
+                    addMessage(message, true);
+                    
+                    // Clear input
+                    userMessageInput.value = "";
+                    
+                    // In a real app, this would send the message to a backend API
+                    // and get a response. For now, we'll simulate a response.
+                    setTimeout(() => {
+                        // Simulate thinking
+                        const responses = [
+                            "أنا أحلل هذا الرهان بناءً على البيانات التاريخية والإحصائيات الحديثة. سأعود إليك قريبًا بتحليل مفصل.",
+                            "هذا رهان جيد بنسبة نجاح متوقعة 68%. يستند هذا التقييم إلى أداء الفريقين في آخر 5 مباريات والمواجهات المباشرة.",
+                            "أنصحك بالنظر في بديل آخر مثل 'كلا الفريقين يسجل' حيث أن نسبة نجاحه أعلى (82%) بناءً على الإحصائيات الأخيرة.",
+                            "نعم، يمكنك إضافة هذا الرهان إلى قسيمتك. لكن انتبه إلى أن هناك عوامل قد تؤثر على النتيجة مثل الإصابات الأخيرة في الفريق."
+                        ];
+                        
+                        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                        addMessage(randomResponse);
+                    }, 1000);
+                }
+            });
+            
+            // Handle Enter key press
+            userMessageInput.addEventListener("keypress", (e) => {
+                if (e.key === "Enter") {
+                    sendButton.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

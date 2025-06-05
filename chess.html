@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شطرنج - WagerWise</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>القائمة</h2>
+            <nav>
+                <ul>
+                    <li><a href="/">Top Picks</a></li>
+                    <li><a href="/football">كرة القدم</a></li>
+                    <li><a href="/tennis">تنس</a></li>
+                    <li class="active"><a href="/chess">شطرنج</a></li>
+                    <li><a href="/chat">AI Chat</a></li>
+                    <li><a href="/settings">الإعدادات</a></li>
+                </ul>
+            </nav>
+            <button class="refresh-button">تحديث البيانات</button>
+        </aside>
+
+        <main class="content">
+            <h1>مباريات الشطرنج - WagerWise</h1>
+            
+            <div class="top-players-container">
+                <h2>أفضل 5 لاعبين عالميًا</h2>
+                <div class="top-players-info">
+                    <p>يتم تحليل وتقديم رهانات فقط للمباريات التي تضم لاعبين من أفضل 5 لاعبين عالميًا.</p>
+                    <ul class="top-players-list">
+                        {% if top_chess_players %}
+                            {% for player in top_chess_players %}
+                                <li>{{ player }}</li>
+                            {% endfor %}
+                        {% else %}
+                            <li>Magnus Carlsen</li>
+                            <li>Ding Liren</li>
+                            <li>Ian Nepomniachtchi</li>
+                            <li>Fabiano Caruana</li>
+                            <li>Hikaru Nakamura</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="matches-container">
+                <h2>جدول المباريات</h2>
+                <table class="matches-table">
+                    <thead>
+                        <tr>
+                            <th>المباراة</th>
+                            <th>البطولة</th>
+                            <th>التاريخ</th>
+                            <th>الحالة</th>
+                            <th>التفاصيل</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if chess_matches %}
+                            {% for match in chess_matches %}
+                            <tr class="match-row" data-match-id="{{ loop.index }}">
+                                <td>{{ match.team_a }} vs {{ match.team_b }}</td>
+                                <td>{{ match.tournament }}</td>
+                                <td>{{ match.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>{{ match.status if match.status else "قادمة" }}</td>
+                                <td>
+                                    {% if match.status and "لا يتم تحليلها" in match.status %}
+                                        <button class="details-button" disabled>غير متاح</button>
+                                    {% else %}
+                                        <button class="details-button">عرض التحليل</button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5">لا توجد مباريات متاحة حاليًا.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="bets-container">
+                <h2>الرهانات المقترحة</h2>
+                <table class="bets-table">
+                    <thead>
+                        <tr>
+                            <th>المباراة</th>
+                            <th>الرهان</th>
+                            <th>نسبة النجاح المتوقعة</th>
+                            <th>طريقة الدخول</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if chess_bets %}
+                            {% for bet in chess_bets %}
+                            <tr>
+                                <td>{{ bet.match }}</td>
+                                <td>{{ bet.bet_type }}</td>
+                                <td>{{ bet.confidence_pct }}%</td>
+                                <td>{{ bet.entry_type }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4">لا توجد رهانات متاحة حاليًا.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="analysis-container" id="match-analysis" style="display: none;">
+                <h2>تحليل المباراة</h2>
+                <div class="analysis-content">
+                    <h3 id="analysis-title">تحليل المباراة</h3>
+                    <div class="analysis-stats">
+                        <div class="stats-row">
+                            <div class="stats-item">
+                                <h4>آخر 5 مباريات</h4>
+                                <div class="team-stats">
+                                    <div class="team-a">
+                                        <span class="team-name" id="player-a-name">اللاعب الأول</span>
+                                        <div class="form-indicators">
+                                            <span class="form-win">W</span>
+                                            <span class="form-draw">D</span>
+                                            <span class="form-win">W</span>
+                                            <span class="form-draw">D</span>
+                                            <span class="form-win">W</span>
+                                        </div>
+                                    </div>
+                                    <div class="team-b">
+                                        <span class="team-name" id="player-b-name">اللاعب الثاني</span>
+                                        <div class="form-indicators">
+                                            <span class="form-win">W</span>
+                                            <span class="form-win">W</span>
+                                            <span class="form-loss">L</span>
+                                            <span class="form-draw">D</span>
+                                            <span class="form-win">W</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="stats-item">
+                                <h4>المواجهات المباشرة</h4>
+                                <div class="h2h-stats">
+                                    <div class="h2h-result">
+                                        <span class="team-a-result">تعادل</span>
+                                        <span class="h2h-date">2023-07-20</span>
+                                    </div>
+                                    <div class="h2h-result">
+                                        <span class="team-a-result">فوز</span>
+                                        <span class="h2h-date">2023-03-15</span>
+                                    </div>
+                                    <div class="h2h-result">
+                                        <span class="team-b-result">فوز</span>
+                                        <span class="h2h-date">2022-11-10</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-row">
+                            <div class="stats-item">
+                                <h4>الإحصائيات</h4>
+                                <div class="detailed-stats">
+                                    <div class="stat-line">
+                                        <span class="stat-name">التصنيف العالمي</span>
+                                        <div class="stat-bar">
+                                            <div class="stat-value team-a-stat" style="width: 52%;">2850</div>
+                                            <div class="stat-value team-b-stat" style="width: 48%;">2820</div>
+                                        </div>
+                                    </div>
+                                    <div class="stat-line">
+                                        <span class="stat-name">نسبة الفوز (آخر 20 مباراة)</span>
+                                        <div class="stat-bar">
+                                            <div class="stat-value team-a-stat" style="width: 60%;">60%</div>
+                                            <div class="stat-value team-b-stat" style="width: 40%;">55%</div>
+                                        </div>
+                                    </div>
+                                    <div class="stat-line">
+                                        <span class="stat-name">نسبة التعادل (آخر 20 مباراة)</span>
+                                        <div class="stat-bar">
+                                            <div class="stat-value team-a-stat" style="width: 45%;">30%</div>
+                                            <div class="stat-value team-b-stat" style="width: 55%;">35%</div>
+                                        </div>
+                                    </div>
+                                    <div class="stat-line">
+                                        <span class="stat-name">أداء الافتتاحية المفضلة</span>
+                                        <div class="stat-bar">
+                                            <div class="stat-value team-a-stat" style="width: 65%;">65%</div>
+                                            <div class="stat-value team-b-stat" style="width: 35%;">58%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="stats-item">
+                                <h4>تحليل "vibes" المباراة</h4>
+                                <div class="vibes-analysis">
+                                    <p><strong>البطولة:</strong> <span id="tournament-importance">بطولة مهمة</span></p>
+                                    <p><strong>الضغوطات:</strong> <span id="pressure-factor">اللاعب الأول يحتاج للفوز للتأهل للمرحلة التالية</span></p>
+                                    <p><strong>الحالة الذهنية:</strong> <span id="mental-state">اللاعب الثاني فاز في آخر بطولتين</span></p>
+                                    <p><strong>الافتتاحية المتوقعة:</strong> <span id="opening-expectation">دفاع سيسيلي</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recommended-bets">
+                        <h4>الرهانات الموصى بها</h4>
+                        <div class="bet-recommendations">
+                            <div class="bet-recommendation">
+                                <span class="bet-type">تعادل</span>
+                                <span class="bet-confidence">65%</span>
+                            </div>
+                            <div class="bet-recommendation">
+                                <span class="bet-type">أكثر من 40 نقلة</span>
+                                <span class="bet-confidence">72%</span>
+                            </div>
+                            <div class="bet-recommendation">
+                                <span class="bet-type">اللاعب الأول يستخدم افتتاحية e4</span>
+                                <span class="bet-confidence">80%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='refresh.js') }}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Handle details button clicks
+            const detailsButtons = document.querySelectorAll(".details-button:not([disabled])");
+            detailsButtons.forEach(button => {
+                button.addEventListener("click", () => {
+                    const row = button.closest(".match-row");
+                    const matchId = row.dataset.matchId;
+                    const matchText = row.cells[0].textContent;
+                    
+                    // Show analysis container
+                    document.getElementById("match-analysis").style.display = "block";
+                    
+                    // Update analysis title
+                    document.getElementById("analysis-title").textContent = `تحليل مباراة: ${matchText}`;
+                    
+                    // Extract player names
+                    const players = matchText.split(" vs ");
+                    document.getElementById("player-a-name").textContent = players[0];
+                    document.getElementById("player-b-name").textContent = players[1];
+                    
+                    // Scroll to analysis section
+                    document.getElementById("match-analysis").scrollIntoView({ behavior: "smooth" });
+                    
+                    // In a real app, this would fetch detailed analysis data for the specific match
+                });
+            });
+        });
+    </script>
+</body>
+</html>
